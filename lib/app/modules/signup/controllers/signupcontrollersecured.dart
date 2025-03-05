@@ -38,12 +38,7 @@ class SignupController extends GetxController {
   Future<void> storeUserData(String name, String email, String password) async {
     await _storageService.storeData('name', name);
     await _storageService.storeData('email', email);
-
-    // Only encrypt if it's not already encrypted
-    String encryptedPassword = isBase64(password) ? password : _encryptionService.encryptData(password);
-    await _storageService.storeData('password', encryptedPassword);
-
-    print('✅ User data stored: $name, $email, [password]');
+    await _storageService.storeData('password', password); // ✅ Store as plain text
   }
 
 
@@ -51,22 +46,11 @@ class SignupController extends GetxController {
   Future<void> getUserData() async {
     name.value = await _storageService.getData('name') ?? '';
     String? email = await _storageService.getData('email');
-    String? encryptedPassword = await _storageService.getData('password');
-
-    String? password;
-    if (encryptedPassword != null && isBase64(encryptedPassword)) {
-      try {
-        password = _encryptionService.decryptData(encryptedPassword);
-      } catch (e) {
-        print("❌ Decryption failed: $e. Using stored value.");
-        password = encryptedPassword; // Fallback to original value
-      }
-    } else {
-      password = encryptedPassword; // Use as-is if not encrypted
-    }
+    String? password = await _storageService.getData('password'); // ✅ No decryption
 
     print('🔹 User data retrieved: ${name.value}, $email, [password]');
   }
+
 
 
 // ✅ Helper Function: Check if a string is Base64 (Encrypted)
@@ -92,11 +76,11 @@ class SignupController extends GetxController {
   // ✅ Check Password
   Future<bool> checkPassword(String email, String password) async {
     String? storedEmail = await _storageService.getData('email');
-    String? encryptedPassword = await _storageService.getData('password');
-    String? storedPassword = encryptedPassword != null ? _encryptionService.decryptData(encryptedPassword) : null;
+    String? storedPassword = await _storageService.getData('password'); // ✅ No decryption
 
     return storedEmail == email && storedPassword == password;
   }
+
 
 
   // ✅ Store Profile Image Path
