@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "488950901849",
+    "project_id": "expensetrek",
+    "storage_bucket": "expensetrek.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:488950901849:android:19f3793bbb27ae22a99548",
+        "android_client_info": {
+          "package_name": "com.shamina.expensetrek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMLkLGc2JhG5w4dMbefDv8807dOwohHkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
