@@ -219,7 +219,7 @@ class TransactionsViewWithDrawerToggle extends StatelessWidget {
         TransactionsView(),
         Positioned(
           top: 8,
-          left: 45,
+          left: 50,
           child: IconButton(
             icon: Icon(Icons.menu,color: Theme.of(context).primaryColorDark),
             onPressed: () {

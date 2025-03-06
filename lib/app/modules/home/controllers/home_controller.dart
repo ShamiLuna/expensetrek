@@ -19,7 +19,10 @@ import '../../Tab/controllers/tab_controller.dart';
 
 class HomeController extends GetxController {
   final ScrollController scrollController = ScrollController();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage;
+  // ✅ Allow dependency injection
+  HomeController({FlutterSecureStorage? secureStorage})
+      : _secureStorage = secureStorage ?? const FlutterSecureStorage();
   var fmitems = <CustomListItem>[].obs;
   var items = <CustomListItem>[].obs;
   var items1 = <CustomListItem1>[].obs;
@@ -837,74 +840,49 @@ class HomeController extends GetxController {
   }
   Future<void> fetchTitlesFromStorage() async {
     try {
-      // Fetch keys from secured storage
-      List<String> keys =
-      await _secureStorage.readAll().then((value) => value.keys.toList());
+      Map<String, String> storageData = await _secureStorage.readAll() ?? <String, String>{};
+
+      List<String> keys = storageData.keys.toList();
       print('All keys: $keys');
 
       items.clear();
-      // Iterate through keys and add titles to the list
       for (String key in keys) {
-        // You might want to filter keys if necessary
-        if (!key.startsWith("expense_")) {
-          continue; // Skip keys meant for other types of items1
-        }
+        if (!key.startsWith("expense_")) continue;
 
-        String? title = await _secureStorage.read(key: key);
-        String? subTitle = await _secureStorage.read(key: "${key}_subTitle");
-        String? amount = await _secureStorage.read(key: "${key}_amount");
-        String? time = await _secureStorage.read(key: "${key}_time");
-        String? gst = await _secureStorage.read(key: "${key}_gst");
-        String? receipt = await _secureStorage.read(key: "${key}_receipt");
-        String? invoice = await _secureStorage.read(key: "${key}_invoice");
-        String? vendor = await _secureStorage.read(key: "${key}_vendor");
-        String? tag = await _secureStorage.read(key: "${key}_tag");
-        String? account = await _secureStorage.read(key: "${key}_account");
-        String? fileBase64 = await _secureStorage.read(key: "${key}_file");
+        String? title = storageData[key];
+        String? amount = storageData["${key}_amount"];
+        String? time = storageData["${key}_time"];
 
         if (title != null && amount != null && time != null) {
-          // If fileBase64 is not null, convert it to File or keep as is
-          // Assuming fileBase64 is a base64 encoded string of the file bytes
-          // You can convert it back to a File if necessary
-
           items.add(CustomListItem(
             key: key,
             title: title,
-            subTitle: subTitle ?? '',
+            subTitle: storageData["${key}_subTitle"] ?? '',
             amount: amount,
             time: time,
-            gst: gst ?? '',
-            receipt: receipt ?? '',
-            invoice: invoice ?? '',
-            vendor: vendor ?? '',
-            tag: tag ?? '',
-            account: account ?? '',
-            fileBase64: fileBase64 ?? '',
+            gst: storageData["${key}_gst"] ?? '',
+            receipt: storageData["${key}_receipt"] ?? '',
+            invoice: storageData["${key}_invoice"] ?? '',
+            vendor: storageData["${key}_vendor"] ?? '',
+            tag: storageData["${key}_tag"] ?? '',
+            account: storageData["${key}_account"] ?? '',
+            fileBase64: storageData["${key}_file"] ?? '',
           ));
         }
       }
       totalAmount.value = calculateTotalAmount();
-      // Await the aggregateData method
       data.value = await aggregateData(Future.value(items), selectedType.value);
-      // data.value = aggregateData(items, selectedType.value);
-      differenceAmount;
-      data;
-      // Call this when adding an item with the title "Transport"
 
-      // calculateAndSetDifference(fetchTitlesFromStorage().toString() );
-      // getItemAmountByTitle('');
-      filteredItems1;
-      filteredItemsm1;
       updateSelectedDate;
       updateTotalAmount();
       categorizeItems();
-      selectedDate2();
       applyFilter();
-      print('Items: ${items.map((item) => item.title).toList()}');
     } catch (e) {
       print('Error fetching titles: $e');
     }
   }
+
+
 
   ///today,yesterday main
   void categorizeItems() {
@@ -1091,95 +1069,42 @@ class HomeController extends GetxController {
 
   }
 
-  Future<void> writeTitleToStorage(
-      String title,
-      String subTitle,
-      String amount,
-      String time,
-      String gst,
-      String receipt,
-      String invoice,
-      String vendor,
-      String tag,
-      String account,
-      File? file) async {
-    // getItemAmountByTitle('');
+  Future<void> writeExpenseToStorage(
+      String title, String subTitle, String amount, String time, String gst,
+      String receipt, String invoice, String vendor, String tag, String account, File? file) async {
     await fetchTitlesFromStorage();
     filteredItems;
-    updateFilter(selectedFilter.value);
     deleteTitleFromStorage;
-    // await _secureStorage.deleteAll();
-    // Generate a unique key for the title
-    // Check for duplicate titles
-    // bool titleExists = items.any((item) => item.title == title);
-    // if (titleExists) {
-    //   _showErrorDialog(Get.context!, 'Title already exists. Please use a different title.');
-    //   return;
-    // }
-
-
     try {
-      String currentTime = DateTime.now().toIso8601String();
-      // Generate a unique key for the title
       String key = "expense_${DateTime.now().millisecondsSinceEpoch}";
-      // String key = DateTime.now().millisecondsSinceEpoch.toString();
-      // final fileBytes = await file!.readAsBytes();
-      // Write the title and other details to secured storage
+
       await _secureStorage.write(key: key, value: title);
-      await _secureStorage.write(key: "${key}_subTitle", value: subTitle);
       await _secureStorage.write(key: "${key}_amount", value: amount);
       await _secureStorage.write(key: "${key}_time", value: time);
-      await _secureStorage.write(key: "${key}_gst", value: gst);
-      await _secureStorage.write(key: "${key}_receipt", value: receipt);
-      await _secureStorage.write(key: "${key}_invoice", value: invoice);
-      await _secureStorage.write(key: "${key}_vendor", value: vendor);
-      await _secureStorage.write(key: "${key}_tag", value: tag);
-      await _secureStorage.write(key: "${key}_account", value: account);
-      String? fileBase64;
+
       if (file != null) {
         final bytes = await file.readAsBytes();
-        final fileBase64 = base64Encode(bytes);
-        await _secureStorage.write(key: "${key}_file", value: fileBase64);
+        final base64File = base64Encode(bytes);
+        await _secureStorage.write(key: "${key}_file", value: base64File);
       }
-      // await _secureStorage.write(key: "${Key}_file", value: file.path);
-      // await _secureStorage.write(key: "${key}_file", value: String.fromCharCodes(fileBytes));
-      // String? filePath;
-      // if (file != null) {
-      //   filePath = file.path;
-      //   await saveFileSecurely(file, key);
-      // }
-      // String? filePath;
-      // if (file != null) {
-      //   filePath = file.path;
-      // }
-      // Add the title and details to the list
+
       addItem(
-        key: key,
-        title: title,
-        subTitle: subTitle,
-        amount: amount,
-        time: time,
-        gst: gst,
-        receipt: receipt,
-        invoice: invoice,
-        vendor: vendor,
-        tag: tag,
-        account: account,
-        fileBase64: fileBase64,
+        key: key, title: title, subTitle: subTitle, amount: amount, time: time,
+        gst: gst, receipt: receipt, invoice: invoice, vendor: vendor, tag: tag, account: account,
+        fileBase64: file != null ? base64Encode(await file.readAsBytes()) : '',
       );
 
       await fetchTitlesFromStorage();
-      data.value = await aggregateData(Future.value(items), selectedType.value);
-      updateSelectedDate;
-      print('Data successfully written to storage with key: $key');
-
+      updateTotalAmount();
       calculateAndSetDifference(title,DateTime.parse(time));
+      print('Data successfully written to storage with key: $key');
     } catch (e) {
       print('Error writing title to storage: $e');
     }
   }
 
-  Future<void> writeTitleToStorage1(String title, String subTitle,
+
+  Future<void> writeIncomeToStorage(String title, String subTitle,
       String amount, String time, String tag, File? file) async {
     filteredItems1;
     await fetchTitlesFromStorage1();

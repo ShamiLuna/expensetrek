@@ -716,7 +716,7 @@ class Tabn extends GetView {
                       // && subTitle.isNotEmpty && amount.isNotEmpty && time.isNotEmpty
                       ) {
 
-                    await controller1.writeTitleToStorage(
+                    await controller1.writeExpenseToStorage(
                         title,
                         subTitle,
                         amount,
@@ -1089,7 +1089,7 @@ class Tabn extends GetView {
                   if (title.isNotEmpty && amount.isNotEmpty && time.isNotEmpty
                       // && subTitle.isNotEmpty && amount.isNotEmpty && time.isNotEmpty
                       ) {
-                    await controller1.writeTitleToStorage1(
+                    await controller1.writeIncomeToStorage(
                         title, subTitle, amount, time, tag, file);
 
 

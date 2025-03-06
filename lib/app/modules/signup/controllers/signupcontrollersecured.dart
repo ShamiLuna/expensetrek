@@ -15,7 +15,7 @@ class SignupController extends GetxController {
 
   final AuthService _authService = AuthService();
   final SecureStorageService _storageService = SecureStorageService();
-  final EncryptionService _encryptionService = EncryptionService();
+  // final EncryptionService _encryptionService = EncryptionService();
 
   // ✅ Toggle Password Visibility
   void togglePasswordVisibility() {
@@ -58,13 +58,6 @@ class SignupController extends GetxController {
     final base64Regex = RegExp(r'^[A-Za-z0-9+/]+={0,2}$');
     return base64Regex.hasMatch(str);
   }
-
-
-// // ✅ Helper Function: Check if a string is Base64 (i.e., Encrypted)
-//   bool isBase64(String str) {
-//     final base64Regex = RegExp(r'^[A-Za-z0-9+/]+={0,2}$');
-//     return base64Regex.hasMatch(str);
-//   }
 
 
   // ✅ Check Email Exists

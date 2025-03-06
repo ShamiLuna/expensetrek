@@ -136,11 +136,11 @@ class AppPages {
       transitionDuration: const Duration(milliseconds: 500),
       binding: LoginBinding(),
     ),
-    GetPage(
-      name: _Paths.PINCODE,
-      page: () => PincodeView(),
-      binding: PincodeBinding(),
-    ),
+    // GetPage(
+    //   name: _Paths.PINCODE,
+    //   page: () => PincodeView(),
+    //   binding: PincodeBinding(),
+    // ),
     GetPage(
       name: _Paths.EMAILONWAY,
       page: () => const EmailonwayView(),

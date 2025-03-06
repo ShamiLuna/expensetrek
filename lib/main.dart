@@ -16,49 +16,82 @@ import 'app/routes/app_pages.dart';
 import 'app/services/firebase_options.dart';
 import 'app/services/local_notification.dart';
 import 'app/services/theme_provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
 
 // Import SignupController
 
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform, // Only for FlutterFire CLI setup
+//   );
+//   await SystemChrome.setPreferredOrientations([
+//     DeviceOrientation.portraitUp,
+//     DeviceOrientation.portraitDown,
+//   ]);
+//
+//   // Initialize GetStorage and FlutterSecureStorage
+//   await GetStorage.init();
+//
+//   final LanguageController languageController = Get.put(LanguageController());
+//   // Load saved locale from secure storage
+//   // Initialize LanguageController
+//
+//
+//   // Load saved locale
+//   await languageController.loadLocale();
+//
+//   // Apply locale
+//   // MyApp app = MyApp(savedLocale: savedLocale);
+//   // Initialize controllers
+//   // Get.put(LanguageController());
+//   Get.put(SplashController());
+//   Get.put(HomeController());
+//   Get.put(BudgetController());
+//   Get.put(SignupController());
+//   Get.put(ProfileController());
+//   // Initialize SignupController
+//   // 🔹 Initialize Local Notifications
+//   await LocalNotificationService.initialize();
+//
+//   // 🔹 Schedule Notifications
+//   LocalNotificationService.scheduleNotificationAfterInstall();
+//   LocalNotificationService.scheduleDailyExpenseReminder();
+//   LocalNotificationService.scheduleWeeklyBudgetCheck();
+//   runApp(const MyApp());
+// }
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Only for FlutterFire CLI setup
+    options: DefaultFirebaseOptions.currentPlatform,
   );
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Initialize GetStorage and FlutterSecureStorage
   await GetStorage.init();
-
   final LanguageController languageController = Get.put(LanguageController());
-  // Load saved locale from secure storage
-  // Initialize LanguageController
-
-
-  // Load saved locale
   await languageController.loadLocale();
 
-  // Apply locale
-  // MyApp app = MyApp(savedLocale: savedLocale);
-  // Initialize controllers
-  // Get.put(LanguageController());
+  // ✅ Create and initialize local notifications
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final localNotificationService = LocalNotificationService(flutterLocalNotificationsPlugin);
+  await localNotificationService.initialize();
+
+  // ✅ Schedule Notifications
+  await localNotificationService.scheduleNotificationAfterInstall();
+  await localNotificationService.scheduleDailyExpenseReminder();
+  await localNotificationService.scheduleWeeklyBudgetCheck();
   Get.put(SplashController());
+  Get.put(SignupController());
   Get.put(HomeController());
   Get.put(BudgetController());
-  Get.put(SignupController());
   Get.put(ProfileController());
-  // Initialize SignupController
-  // 🔹 Initialize Local Notifications
-  await LocalNotificationService.initialize();
 
-  // 🔹 Schedule Notifications
-  LocalNotificationService.scheduleNotificationAfterInstall();
-  LocalNotificationService.scheduleDailyExpenseReminder();
-  LocalNotificationService.scheduleWeeklyBudgetCheck();
   runApp(const MyApp());
 }
 

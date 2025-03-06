@@ -35,53 +35,54 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   encrypt:
-  carousel_slider: ^5.0.0
-  cupertino_icons: ^1.0.6
-  provider: ^6.0.5
-  get: ^4.3.8
-  get_cli: ^1.8.1
-  connectivity_plus: ^6.0.3
-  shared_preferences: ^2.2.2
-  cached_network_image: ^3.3.0
-  flutter_svg: ^2.0.9
-  pin_code_fields: ^8.0.1
-  country_pickers: ^3.0.1
-  sms_autofill: ^2.3.0
+  carousel_slider:
+  cupertino_icons:
+  provider:
+  get:
+  get_cli:
+  connectivity_plus:
+  shared_preferences:
+  cached_network_image:
+  flutter_svg:
+  pin_code_fields:
+  country_pickers:
+  sms_autofill:
   intl:
-  pinput: ^5.0.1
-  firebase_auth: ^5.5.1
-  get_storage: ^2.1.1
-  responsive_framework: ^0.2.0
-  firebase_core: ^3.12.1
-  fluttertoast: ^8.2.4
-  smooth_page_indicator: ^1.1.0
-  liquid_swipe: ^3.0.0
-  flutter_pin_code_fields: ^2.2.0
-  http: ^1.2.1
-  firebase_messaging: ^15.2.4
-  flutter_local_notifications:
+  pinput:
+  firebase_auth:
+  get_storage:
+  firebase_core:
+  fluttertoast:
+  smooth_page_indicator:
+  liquid_swipe:
+  flutter_pin_code_fields:
+  http:
+  firebase_messaging:
+#  flutter_local_notifications:
   timezone:
-  flutter_native_timezone:
-  dots_indicator: ^4.0.1
-  multiselect: ^0.1.1
-  lottie: ^3.1.2
-  states_rebuilder: ^6.4.0
-  syncfusion_flutter_charts: ^28.2.7
+  dots_indicator:
+  multiselect:
+  lottie:
+  states_rebuilder:
+  syncfusion_flutter_charts:
 #  hive: ^2.2.3
 #  hive_flutter: ^1.1.0
-  curved_navigation_bar: ^1.0.3
-  fancy_bottom_navigation: ^0.3.3
-  flutter_secure_storage: ^9.2.2
+  curved_navigation_bar:
+  fancy_bottom_navigation:
+  flutter_secure_storage: 9.2.4
   flutter_slidable:
   fl_chart:
-  image_picker: ^1.1.2
-  file_picker: ^9.0.2
-  path_provider: ^2.0.7
-  permission_handler: ^11.3.1
-  flutter_pdfview: ^1.0.4
+  image_picker:
+  file_picker:
+  path_provider:
+  permission_handler:
+  flutter_pdfview:
   uuid:
-  url_launcher: ^6.0.12
+  url_launcher:
   flutter_advanced_drawer:
+  flutter_native_timezone:
+  mockito: ^5.4.5
+  build_runner:
 #  razorpay_flutter:
 
 
@@ -92,6 +93,8 @@ dev_dependencies:
 dependency_overrides:
   intl: ^0.18.0
   win32: ^5.1.1
+  responsive_framework: ^0.2.0
+  flutter_local_notifications: ^18.0.1
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

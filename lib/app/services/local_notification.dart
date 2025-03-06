@@ -4,11 +4,13 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 
 class LocalNotificationService {
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin notificationsPlugin;
 
-  static Future<void> initialize() async {
-    // Initialize time zones
+  // ✅ Constructor: Accepts a FlutterLocalNotificationsPlugin instance (Dependency Injection)
+  LocalNotificationService(this.notificationsPlugin);
+
+  /// 🔹 Initialize Notifications
+  Future<void> initialize() async {
     tz.initializeTimeZones();
     String timeZone = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZone));
@@ -19,21 +21,22 @@ class LocalNotificationService {
     final InitializationSettings initSettings =
     InitializationSettings(android: androidInitSettings);
 
-    await _notificationsPlugin.initialize(initSettings);
+    await notificationsPlugin.initialize(initSettings);
   }
 
   /// 🔹 Schedule a notification 10 minutes after install
-  static Future<void> scheduleNotificationAfterInstall() async {
-    await _notificationsPlugin.zonedSchedule(
+  Future<void> scheduleNotificationAfterInstall() async {
+    await notificationsPlugin.zonedSchedule(
       0,
       'Reminder!',
       'Check your transactions now!',
-      tz.TZDateTime.now(tz.local).add(Duration(minutes: 10)),
+      tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'install_channel',
           'Install Reminder',
-          channelDescription: 'You will get daily and weekly notification as reminder',
+          channelDescription:
+          'You will get daily and weekly notifications as reminders',
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -41,14 +44,13 @@ class LocalNotificationService {
       uiLocalNotificationDateInterpretation:
       UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // ✅ Fix
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
-
   /// 🔹 Schedule a daily expense reminder (Every day at 8 PM)
-  static Future<void> scheduleDailyExpenseReminder() async {
-    await _notificationsPlugin.zonedSchedule(
+  Future<void> scheduleDailyExpenseReminder() async {
+    await notificationsPlugin.zonedSchedule(
       1,
       'Expense Check',
       'Have you reviewed your expenses today?',
@@ -65,14 +67,13 @@ class LocalNotificationService {
       uiLocalNotificationDateInterpretation:
       UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // ✅ Fix
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
-
   /// 🔹 Schedule a weekly budget check (Every Sunday at 10 AM)
-  static Future<void> scheduleWeeklyBudgetCheck() async {
-    await _notificationsPlugin.zonedSchedule(
+  Future<void> scheduleWeeklyBudgetCheck() async {
+    await notificationsPlugin.zonedSchedule(
       2,
       'Weekly Budget Check',
       'Review your budget for the upcoming week!',
@@ -89,13 +90,12 @@ class LocalNotificationService {
       uiLocalNotificationDateInterpretation:
       UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // ✅ Fix
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
-
   /// 🔹 Helper function to get next instance of time (e.g., 8:00 PM)
-  static tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
+  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate =
     tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
@@ -106,7 +106,7 @@ class LocalNotificationService {
   }
 
   /// 🔹 Helper function to get next Sunday at 10 AM
-  static tz.TZDateTime _nextInstanceOfDay(int weekday, int hour, int minute) {
+  tz.TZDateTime _nextInstanceOfDay(int weekday, int hour, int minute) {
     tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
         now.day, hour, minute);
