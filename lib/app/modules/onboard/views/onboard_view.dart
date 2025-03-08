@@ -249,7 +249,7 @@ profile() async {
 }
 Botto() async {
   await Future.delayed(const Duration(microseconds: 1)); // Change the duration as needed
-  Get.toNamed(Routes.BOTTOM);
+  Get.offAllNamed(Routes.BOTTOM);
 }
 Addtr() async {
   await Future.delayed(const Duration(microseconds: 1)); // Change the duration as needed

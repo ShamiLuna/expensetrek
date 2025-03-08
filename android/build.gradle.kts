@@ -1,9 +1,16 @@
 import org.gradle.api.tasks.compile.JavaCompile
 
-allprojects {
+// ✅ Correct way to apply plugins
+plugins {
+    id("com.android.application") version "8.7.3" apply false
+    id("org.jetbrains.kotlin.android") version "2.0.21" apply false
+}
+
+buildscript {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
@@ -15,7 +22,7 @@ subprojects {
     }
 }
 
-// Move the build directory outside the project
+// ✅ Move the build directory outside the project
 val newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.set(newBuildDir)
 
@@ -24,10 +31,12 @@ subprojects {
     project.layout.buildDirectory.set(newSubprojectBuildDir)
 }
 
+// ✅ Ensure subprojects evaluate after ":app"
 subprojects {
     evaluationDependsOn(":app")
 }
 
+// ✅ Register clean task properly
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }

@@ -1,10 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
+import 'dart:io' show Platform; // ✅ Detects platform
+import 'package:flutter/foundation.dart'; // ✅ Fixes kIsWeb error
+
 import 'app/localization/apptranslation.dart';
 import 'app/localization/lang_controller.dart';
 import 'app/modules/Budget/controllers/budget_controller.dart';
@@ -16,91 +20,79 @@ import 'app/routes/app_pages.dart';
 import 'app/services/firebase_options.dart';
 import 'app/services/local_notification.dart';
 import 'app/services/theme_provider.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+// ✅ Handles background FCM messages
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("🔔 [FCM] Background Message: ${message.notification?.title}");
+}
 
-
-// Import SignupController
-
-// Future<void> main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp(
-//     options: DefaultFirebaseOptions.currentPlatform, // Only for FlutterFire CLI setup
-//   );
-//   await SystemChrome.setPreferredOrientations([
-//     DeviceOrientation.portraitUp,
-//     DeviceOrientation.portraitDown,
-//   ]);
-//
-//   // Initialize GetStorage and FlutterSecureStorage
-//   await GetStorage.init();
-//
-//   final LanguageController languageController = Get.put(LanguageController());
-//   // Load saved locale from secure storage
-//   // Initialize LanguageController
-//
-//
-//   // Load saved locale
-//   await languageController.loadLocale();
-//
-//   // Apply locale
-//   // MyApp app = MyApp(savedLocale: savedLocale);
-//   // Initialize controllers
-//   // Get.put(LanguageController());
-//   Get.put(SplashController());
-//   Get.put(HomeController());
-//   Get.put(BudgetController());
-//   Get.put(SignupController());
-//   Get.put(ProfileController());
-//   // Initialize SignupController
-//   // 🔹 Initialize Local Notifications
-//   await LocalNotificationService.initialize();
-//
-//   // 🔹 Schedule Notifications
-//   LocalNotificationService.scheduleNotificationAfterInstall();
-//   LocalNotificationService.scheduleDailyExpenseReminder();
-//   LocalNotificationService.scheduleWeeklyBudgetCheck();
-//   runApp(const MyApp());
-// }
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // ✅ Try-Catch for Firebase Initialization
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    print("✅ [Firebase] Initialized successfully");
+  } catch (e) {
+    print("❌ [Firebase] Initialization failed: $e");
+  }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  await GetStorage.init();
+  // ✅ Initialize GetStorage (Local Storage)
+  try {
+    await GetStorage.init();
+    print("✅ [GetStorage] Initialized successfully");
+  } catch (e) {
+    print("❌ [GetStorage] Initialization failed: $e");
+  }
+
+  // ✅ Initialize Language Controller
   final LanguageController languageController = Get.put(LanguageController());
   await languageController.loadLocale();
 
-  // ✅ Create and initialize local notifications
-  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  final localNotificationService = LocalNotificationService(flutterLocalNotificationsPlugin);
-  await localNotificationService.initialize();
+  // ✅ Initialize Firebase Messaging
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  // ✅ Schedule Notifications
-  await localNotificationService.scheduleNotificationAfterInstall();
-  await localNotificationService.scheduleDailyExpenseReminder();
-  await localNotificationService.scheduleWeeklyBudgetCheck();
-  Get.put(SplashController());
-  Get.put(SignupController());
-  Get.put(HomeController());
-  Get.put(BudgetController());
-  Get.put(ProfileController());
+  // ✅ Initialize Firebase Messaging (FCM) & Local Notifications
+  final LocalNotificationService localNotificationService = LocalNotificationService();
+  try {
+    await localNotificationService.initializeFCM();
+    print("✅ [FCM] Firebase Messaging initialized successfully");
+  } catch (e) {
+    print("❌ [FCM] Initialization failed: $e");
+  }
+
+  // ✅ Schedule local notifications only if NOT on Web
+  if (!kIsWeb) {
+    try {
+      await localNotificationService.scheduleNotification();
+      print("✅ [Local Notifications] Scheduled successfully");
+    } catch (e) {
+      print("❌ [Local Notifications] Scheduling failed: $e");
+    }
+  }
+
+  // ✅ Register controllers in GetX
+  try {
+    Get.put(SplashController());
+    Get.put(SignupController());
+    Get.put(HomeController());
+    Get.put(BudgetController());
+    Get.put(ProfileController());
+    print("✅ [GetX] Controllers initialized successfully");
+  } catch (e) {
+    print("❌ [GetX] Controller initialization failed: $e");
+  }
 
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // final Locale savedLocale;
-
-  // const MyApp({Key? key, required this.savedLocale}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +101,10 @@ class MyApp extends StatelessWidget {
       builder: (context, _) {
         final themeProvider = Provider.of<ThemeProvider>(context);
         final LanguageController languageController = Get.find<LanguageController>();
+
         return GetMaterialApp(
-          showPerformanceOverlay: false,// Use GetMaterialApp
-          debugShowMaterialGrid: false,
+          debugShowCheckedModeBanner: false,
+          title: "Expense Trek",
           builder: (context, child) => ResponsiveWrapper.builder(
             child,
             maxWidth: 1200,
@@ -124,13 +117,11 @@ class MyApp extends StatelessWidget {
               ResponsiveBreakpoint.resize(800, name: TABLET),
               ResponsiveBreakpoint.resize(1000, name: DESKTOP),
               ResponsiveBreakpoint.autoScale(1000, name: DESKTOP),
-              ResponsiveBreakpoint.autoScale(1000, name: DESKTOP),
             ],
           ),
-          translations: AppTranslations(), // Initialize translations
+          translations: AppTranslations(),
           locale: languageController.parseLocale(languageController.locale),
           fallbackLocale: const Locale('en', 'US'),
-          debugShowCheckedModeBanner: false,
           themeMode: themeProvider.themeMode,
           theme: themeProvider.currentTheme,
           darkTheme: MyThemes.darkTheme,
@@ -141,6 +132,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-

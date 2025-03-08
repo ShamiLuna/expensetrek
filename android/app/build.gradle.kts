@@ -13,10 +13,11 @@ plugins {
 
 android {
     namespace = "com.shamina.expensetrek"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = "27.0.12077973"
 
     compileOptions {
+//        coreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -30,11 +31,11 @@ android {
         applicationId = "com.shamina.expensetrek"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        multiDexEnabled true;
+        multiDexEnabled = true;
     }
 
     buildTypes {
@@ -44,6 +45,12 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    buildToolsVersion = "35.0.0"
+
+    dependencies {
+//        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    }
+
 }
 
 flutter {
