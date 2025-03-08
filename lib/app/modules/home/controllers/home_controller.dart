@@ -788,30 +788,21 @@ class HomeController extends GetxController {
       await _secureStorage.readAll().then((value) => value.keys.toList());
       print('All keys: $keys');
       items1.clear();
+
       // Iterate through keys and add titles to the list
       for (String key in keys) {
-        // You might want to filter keys if necessary
         if (!key.startsWith("income_")) {
-          continue; // Skip keys meant for other types of items
+          continue; // Skip non-income keys
         }
 
         String? title = await _secureStorage.read(key: key);
         String? subTitle = await _secureStorage.read(key: "${key}_subTitle");
         String? amount = await _secureStorage.read(key: "${key}_amount");
         String? time = await _secureStorage.read(key: "${key}_time");
-        // String? gst = await _secureStorage.read(key: "${key1}_gst");
-        // String? receipt = await _secureStorage.read(key: "${key1}_receipt");
-        // String? invoice = await _secureStorage.read(key: "${key1}_invoice");
-        // String? vendor = await _secureStorage.read(key: "${key1}_vendor");
         String? tag = await _secureStorage.read(key: "${key}_tag");
-        // String? account = await _secureStorage.read(key: "${key1}_account");
         String? fileBase64 = await _secureStorage.read(key: "${key}_file");
 
-        if (title != null  && amount != null && time != null) {
-          // If fileBase64 is not null, convert it to File or keep as is
-          // Assuming fileBase64 is a base64 encoded string of the file bytes
-          // You can convert it back to a File if necessary
-
+        if (title != null && amount != null && time != null) {
           items1.add(CustomListItem1(
             key: key,
             title: title,
@@ -833,11 +824,11 @@ class HomeController extends GetxController {
       updateTotalAmount1();
       categorizeItems1();
       selectedDate1();
-
     } catch (e) {
-      print('Error fetching titles: $e');
+      print('Error fetching income titles: $e');
     }
   }
+
   Future<void> fetchTitlesFromStorage() async {
     try {
       Map<String, String> storageData = await _secureStorage.readAll() ?? <String, String>{};
@@ -870,6 +861,7 @@ class HomeController extends GetxController {
           ));
         }
       }
+
       totalAmount.value = calculateTotalAmount();
       data.value = await aggregateData(Future.value(items), selectedType.value);
 
@@ -878,7 +870,7 @@ class HomeController extends GetxController {
       categorizeItems();
       applyFilter();
     } catch (e) {
-      print('Error fetching titles: $e');
+      print('Error fetching expense titles: $e');
     }
   }
 
