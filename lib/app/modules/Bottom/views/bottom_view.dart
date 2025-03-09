@@ -193,7 +193,7 @@ class HomeViewWithDrawerToggle extends StatelessWidget {
       children: [
         HomeView(),
         Positioned(
-          top: 35,
+          top: 26,
           left: 27,
           child: IconButton(
             icon: Icon(Icons.menu, color: Theme.of(context).primaryColorDark,),
@@ -218,8 +218,8 @@ class TransactionsViewWithDrawerToggle extends StatelessWidget {
       children: [
         TransactionsView(),
         Positioned(
-          top: 8,
-          left: 50,
+          top: 7,
+          left: 45,
           child: IconButton(
             icon: Icon(Icons.menu,color: Theme.of(context).primaryColorDark),
             onPressed: () {
@@ -243,7 +243,7 @@ class TabnWithDrawerToggle extends StatelessWidget {
       children: [
         Tabn(),
         Positioned(
-          top: 9,
+          top: 6,
           left: 40,
           child: IconButton(
             icon: Icon(Icons.menu,color: Theme.of(context).primaryColorDark),

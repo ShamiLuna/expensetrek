@@ -44,7 +44,7 @@ class TransactionsView extends GetView<TransactionsController> {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      "  All Transactions".tr,
+                      "   All Transactions".tr,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       style: TextStyle(
