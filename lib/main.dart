@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
-import 'dart:io' show Platform; // ✅ Detects platform
-import 'package:flutter/foundation.dart'; // ✅ Fixes kIsWeb error
+import 'package:flutter/foundation.dart'; // ✅ Fixes kIsWeb issue
+import 'dart:io' show Platform;
 
 import 'app/localization/apptranslation.dart';
 import 'app/localization/lang_controller.dart';
@@ -23,18 +23,18 @@ import 'app/services/theme_provider.dart';
 
 // ✅ Handles background FCM messages
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("🔔 [FCM] Background Message: ${message.notification?.title}");
+  debugPrint("🔔 [FCM] Background Message: ${message.notification?.title}");
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final stopwatch = Stopwatch()..start(); // ✅ Measure startup time
 
-  // ✅ Try-Catch for Firebase Initialization
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    print("✅ [Firebase] Initialized successfully");
+    debugPrint("✅ [Firebase] Initialized successfully");
   } catch (e) {
-    print("❌ [Firebase] Initialization failed: $e");
+    debugPrint("❌ [Firebase] Initialization failed: $e");
   }
 
   await SystemChrome.setPreferredOrientations([
@@ -42,57 +42,53 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // ✅ Initialize GetStorage (Local Storage)
   try {
     await GetStorage.init();
-    print("✅ [GetStorage] Initialized successfully");
+    debugPrint("✅ [GetStorage] Initialized successfully");
   } catch (e) {
-    print("❌ [GetStorage] Initialization failed: $e");
+    debugPrint("❌ [GetStorage] Initialization failed: $e");
   }
 
-  // ✅ Initialize Language Controller
+  // ✅ Initialize Language Controller safely
   final LanguageController languageController = Get.put(LanguageController());
   await languageController.loadLocale();
+  Locale safeLocale = languageController.parseLocale(languageController.locale); // ✅ Ensuring valid locale
 
-  // ✅ Initialize Firebase Messaging
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  // ✅ Initialize Firebase Messaging (FCM) & Local Notifications
+  // ✅ Initialize Firebase Messaging & Local Notifications
   final LocalNotificationService localNotificationService = LocalNotificationService();
-  try {
-    await localNotificationService.initializeFCM();
-    print("✅ [FCM] Firebase Messaging initialized successfully");
-  } catch (e) {
-    print("❌ [FCM] Initialization failed: $e");
-  }
-
-  // ✅ Schedule local notifications only if NOT on Web
   if (!kIsWeb) {
     try {
+      await localNotificationService.initializeFCM();
       await localNotificationService.scheduleNotification();
-      print("✅ [Local Notifications] Scheduled successfully");
+      debugPrint("✅ [Notifications] Initialized & Scheduled successfully");
     } catch (e) {
-      print("❌ [Local Notifications] Scheduling failed: $e");
+      debugPrint("❌ [Notifications] Initialization failed: $e");
     }
   }
 
-  // ✅ Register controllers in GetX
+  // ✅ Initialize controllers efficiently
   try {
     Get.put(SplashController());
     Get.put(SignupController());
     Get.put(HomeController());
     Get.put(BudgetController());
     Get.put(ProfileController());
-    print("✅ [GetX] Controllers initialized successfully");
+    debugPrint("✅ [GetX] Controllers initialized successfully");
   } catch (e) {
-    print("❌ [GetX] Controller initialization failed: $e");
+    debugPrint("❌ [GetX] Controller initialization failed: $e");
   }
 
-  runApp(const MyApp());
+  stopwatch.stop();
+  debugPrint("🚀 App Startup Time: ${stopwatch.elapsedMilliseconds} ms");
+
+  runApp(MyApp(safeLocale: safeLocale));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Locale safeLocale;
+  const MyApp({Key? key, required this.safeLocale}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +96,6 @@ class MyApp extends StatelessWidget {
       create: (context) => ThemeProvider(),
       builder: (context, _) {
         final themeProvider = Provider.of<ThemeProvider>(context);
-        final LanguageController languageController = Get.find<LanguageController>();
-
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: "Expense Trek",
@@ -120,7 +114,7 @@ class MyApp extends StatelessWidget {
             ],
           ),
           translations: AppTranslations(),
-          locale: languageController.parseLocale(languageController.locale),
+          locale: safeLocale, // ✅ Ensured valid locale
           fallbackLocale: const Locale('en', 'US'),
           themeMode: themeProvider.themeMode,
           theme: themeProvider.currentTheme,

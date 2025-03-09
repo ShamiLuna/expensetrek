@@ -28,42 +28,65 @@ class ProfileController extends GetxController {
   // 🔹 Export Transactions Only with Secure PIN
   Future<void> exportData() async {
     try {
-      String? exportPin = await signupController.askUserForPin("Set a PIN for Backup");
-      if (exportPin == null) return;
+      print("🚀 Export process started...");
 
-      // 🔹 Encrypt the PIN
+      // 🔐 Ask for PIN
+      String? exportPin = await signupController.askUserForPin("Set a PIN for Backup");
+      if (exportPin == null || exportPin.isEmpty) {
+        print("❌ Export canceled: No PIN entered.");
+        Get.snackbar("Export Canceled", "You must enter a PIN.");
+        return;
+      }
+
+      print("🔐 Entered PIN: $exportPin");
+
+      // 🔹 Encrypt PIN before storing
       String encryptedPin = encryptionService.encryptData(exportPin);
 
-      // 🔹 Fetch Stored Transactions (Exclude User Data)
+      // 🔹 Get all stored data
       Map<String, String> allData = await _secureStorage.readAll();
-      Map<String, String> filteredData = {};
+      allData["backup_pin"] = encryptedPin; // ✅ Store encrypted PIN
 
-      for (var key in allData.keys) {
-        if (key.startsWith("expense_") || key.startsWith("income_")) {
-          filteredData[key] = allData[key]!;
-        }
-      }
+      print("📂 Secure Storage Data: ${allData.keys}");
 
-      filteredData["backup_pin"] = encryptedPin; // ✅ Store encrypted PIN
-
-      // 🔹 Convert & Encrypt
-      String jsonData = jsonEncode(filteredData);
+      // 🔹 Convert to JSON and Encrypt
+      String jsonData = jsonEncode(allData);
       String encryptedData = encryptionService.encryptData(jsonData);
 
-      // 🔹 Save File
-      String? outputFilePath = await FilePicker.platform.saveFile(
-        dialogTitle: "Save Backup File",
-        fileName: "transactions_backup.enc",
-      );
+      print("✅ Data encrypted successfully.");
 
-      if (outputFilePath != null) {
-        await File(outputFilePath).writeAsString(encryptedData);
-        print("✅ Transactions exported successfully: $outputFilePath");
+      // 🔹 Pick a directory for saving instead of saveFile() (Fix for Android/iOS)
+      String? outputDirectory = await FilePicker.platform.getDirectoryPath();
+
+      if (outputDirectory == null) {
+        print("❌ Export canceled: No directory selected.");
+        Get.snackbar("Export Failed", "No directory selected.");
+        return;
       }
+
+      String outputFilePath = "$outputDirectory/backup.enc";
+
+      print("📂 Saving file to: $outputFilePath");
+
+      // ✅ Convert encrypted string to bytes
+      List<int> encryptedBytes = utf8.encode(encryptedData);
+
+      // ✅ Use `writeAsBytes` instead of `writeAsString`
+      File file = File(outputFilePath);
+      await file.writeAsBytes(encryptedBytes);
+
+      print("🎉 Data exported successfully: $outputFilePath");
+      Get.snackbar("Export Successful", "Backup saved at:\n$outputFilePath");
     } catch (e) {
       print("❌ Error exporting data: $e");
+      Get.snackbar("Export Failed", "An error occurred.");
     }
   }
+
+
+
+
+
 
   // 🔹 Import Transactions and Merge with Existing Data
   Future<void> importData() async {

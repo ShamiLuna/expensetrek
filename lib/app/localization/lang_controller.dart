@@ -39,6 +39,7 @@
 //   }
 // }
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
@@ -67,10 +68,27 @@ class LanguageController extends GetxController {
     Get.updateLocale(parseLocale(_locale.value));
   }
 
-  Locale parseLocale(String locale) {
-    final parts = locale.split(' _');
-    return Locale(parts[0], parts.length > 1 ? parts[1] : '');
+  Locale parseLocale(String? locale) {
+    try {
+      if (locale == null || locale.isEmpty) {
+        debugPrint("❌ Invalid locale found, setting default 'en_US'");
+        return const Locale('en', 'US'); // ✅ Default locale
+      }
+
+      List<String> parts = locale.split('_');
+      if (parts.length == 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+        return Locale(parts[0], parts[1]); // ✅ Valid locale
+      }
+
+      debugPrint("❌ Malformed locale '$locale', using fallback.");
+      return const Locale('en', 'US'); // ✅ Prevent crash
+    } catch (e) {
+      debugPrint("❌ Exception in parseLocale: $e");
+      return const Locale('en', 'US'); // ✅ Fallback in case of error
+    }
   }
+
+
 
   void changeLanguage(String languageCode, String countryCode) async {
     final newLocale = '$languageCode _$countryCode';
