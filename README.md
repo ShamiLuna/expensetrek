@@ -9,6 +9,54 @@ ExpenseTrek is a modern finance management app built with Flutter & GetX, design
 ✔ Transactions Page: Filter transactions by category, date, and amount.
 ✔ Adding Page: Add income & expenses with detailed financial inputs:
 
+
+Architectural Design & Approach
+
+Uses GetX for state management due to its lightweight and efficient nature.
+
+Three-layer architecture: Presentation (UI), Business Logic (Controllers), and Data Layer (Secure Storage & Firebase Auth).
+
+
+
+Security & Data Protection
+
+AES Encryption protects financial data.
+
+Secure PIN for exporting and importing data.
+
+Local Storage Isolation ensures no direct data exposure.
+
+
+
+Key Features
+
+Home Page: Charts & graphs for expense insights.
+
+Transactions Page: Advanced filtering options.
+
+Budget Page: Real-time budget tracking.
+
+Profile Page: Secure export/import of financial data.
+
+Customization: Multi-theme and language support.
+
+
+Testing & Validation
+
+Firebase authentication, secure storage, local notifications, and UI themes were tested.
+
+Future testing improvements will include better controller & UI coverage.
+
+
+
+Challenges & Fixes
+
+Resolved image picker and version conflicts.
+
+Fixed Gradle issues with proper versioning.
+
+Ensured secure data handling through encryption.
+
 GST, invoice numbers, category suggestions, vendor details.
 ✔ Budget Page: Create & track budgets with real-time updates.
 ✔ Profile Page: Export/Import user data for secure backups.
